@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spelling Machine</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 10px;
+      background-color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+    }
+
+    .tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid black;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: grab;
+      user-select: none;
+      padding: 5px;
+      margin: 5px;
+      box-sizing: border-box;
+      color: white;
+      text-shadow: 0 0 1px black, 0 0 2px black, 0 0 3px black;
+    }
+
+    .bank-tile {
+      font-size: 12px;
+      min-width: 30px;
+      height: 30px;
+    }
+
+    .staging-tile {
+      font-size: 24px;
+      min-width: 60px;
+      height: 60px;
+    }
+
+    .spelling-tile {
+      font-size: 48px;
+      min-width: 120px;
+      height: 120px;
+    }
+
+    .dropzone {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      min-height: 100px;
+      border: 2px dashed #007bff;
+      border-radius: 8px;
+    }
+
+    #bank-dropzone {
+      background-color: #0047AB;
+    }
+
+    #staging-dropzone {
+      background-color: #005EC9;
+    }
+
+    #spelling-dropzone {
+      background-color: #007FFF;
+    }
+
+    #remove-box {
+      width: 60px;
+      height: 60px;
+      background-color: grey;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid black;
+      border-radius: 8px;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      flex-direction: column;
+    }
+
+    #remove-box span {
+      font-size: 10px;
+    }
+
+    .reset-button {
+      font-size: 12px;
+      padding: 5px 10px;
+      background-color: #ccc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Spelling Machine</h1>
+
+  <div class="container" id="phonogram-bank">
+    <h2>Phonogram Bank
+      <div>
+        <input type="text" id="phonogram-input" placeholder="Enter a phonogram">
+        <button onclick="addPhonogram()">Add Phonogram</button>
+      </div>
+    </h2>
+    <div class="dropzone" id="bank-dropzone"></div>
+  </div>
+
+  <div class="container" id="staging-area">
+    <h2>Today's Phonograms
+      <button class="reset-button" onclick="resetStagingArea()">Reset</button>
+    </h2>
+    <div class="dropzone" id="staging-dropzone"></div>
+  </div>
+
+  <div class="container" id="spelling-area">
+    <h2>Spelling Area
+      <button class="reset-button" onclick="resetSpellingArea()">Reset</button>
+    </h2>
+    <div class="dropzone" id="spelling-dropzone"></div>
+  </div>
+
+  <div id="remove-box">
+    <span>Drag here<br>to delete</span>
+  </div>
+<div class="container" id="dropdown-container">
+  <h2>Phonogram Sets</h2>
+  <select id="preset-dropdown" onchange="populateFromPreset()">
+    <option value="">Select a preset set...</option>
+ <option value="lBlends">L Blends</option>
+  <option value="rBlends">R Blends</option>
+<option value="sBlends">S Blends</option>
+<option value="finalBlends">Final Blends</option>
+<option value="chTeam">CH Team</option>
+<option value="shTeam">SH Team</option>
+<option value="thTeam">TH Team</option>
+<option value="whTeam">WH Team</option>
+<option value="ckTeam">CK Team</option>
+<option value="consonantTeams">Consonant Teams</option>
+<option value="vowelTeams">Vowel Teams</option>
+ <option value="vowels">Vowels</option>
+    <option value="consonants">Consonants</option>
+<option value="otherPhonograms">Other Phonograms</option>
+  </select>
+
+  <div>
+    <h3>Create Custom Set</h3>
+    <textarea id="custom-set-input" placeholder="Enter phonograms separated by commas (e.g., sh, th, ch)"></textarea>
+    <button onclick="addCustomSet()">Add Custom Set</button>
+    <select id="custom-dropdown" onchange="populateFromCustomSet()">
+      <option value="">Select a custom set...</option>
+    </select>
+  </div>
+</div>
+
+  <script>
+    const phonograms = ['a', 'c', 'd', 'f', 'g', 'o', 's', 'qu', 'b', 'e', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'sh', 'ee', 'th', 'ow', 'ou', 'oo', 'ch', 'ar', 'ay', 'ai', 'oy', 'oi', 'er', 'ir', 'ur', 'wor', 'ear', 'ng', 'ea', 'aw', 'au', 'or', 'ck', 'wh', 'ed', 'ew', 'ui', 'oa', 'gu', 'ph', 'ough', 'oe', 'ey', 'igh', 'kn', 'gn', 'wr', 'ie', 'dge', 'ei', 'eigh', 'ti', 'si', 'ci'];
+    const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8F00FF'];
+
+    function addPhonogram() {
+      const input = document.getElementById('phonogram-input');
+      const phonogram = input.value.trim();
+      if (phonogram) {
+        const tile = createTile(phonogram, 'bank-tile');
+        document.getElementById('bank-dropzone').appendChild(tile);
+        input.value = '';
+      }
+    }
+
+    function createTile(content, sizeClass) {
+      const tile = document.createElement('div');
+      tile.classList.add('tile', sizeClass);
+      tile.textContent = content;
+      tile.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      tile.draggable = true;
+
+      // Attach the same event listeners for touch and drag functionality
+      tile.addEventListener('dragstart', dragStart);
+      tile.addEventListener('dragend', dragEnd);
+      tile.addEventListener('touchstart', touchStart, { passive: true });
+      tile.addEventListener('touchmove', touchMove);
+      tile.addEventListener('touchend', touchEnd);
+
+      return tile;
+    }
+
+    function dragStart(e) {
+  e.dataTransfer.setData('tileContent', e.target.textContent);
+  e.dataTransfer.setData('originClass', e.target.classList[1]);
+  e.dataTransfer.setData('tileColor', e.target.style.backgroundColor); // Store the tile's background color
+  setTimeout(() => e.target.classList.add('dragging'), 0);
+}
+
+    function dragEnd() {
+      document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+    }
+
+    let touchTile = null;
+    let touchClone = null;
+    let originalContainer = null;
+    let spellingAreaColor = null;
+
+    // Touch start logic
+    function touchStart(e) {
+  touchTile = e.target;
+  originalContainer = touchTile.parentNode;
+
+  // Clone the tile (not moving the original one)
+  touchClone = touchTile.cloneNode(true);
+  touchClone.style.position = 'absolute';
+  touchClone.style.pointerEvents = 'none';
+  touchClone.style.zIndex = '1000';
+  touchClone.style.backgroundColor = touchTile.style.backgroundColor; // Preserve color
+  document.body.appendChild(touchClone);
+
+  // Get the original tile's bounding rectangle
+  const rect = touchTile.getBoundingClientRect();
+
+  // Account for the page's scroll offsets
+  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+  // Position the clone exactly on top of the original tile
+  touchClone.style.left = `${rect.left + scrollX}px`;
+  touchClone.style.top = `${rect.top + scrollY}px`;
+  touchClone.style.width = `${rect.width}px`; // Match width
+  touchClone.style.height = `${rect.height}px`; // Match height
+
+  // Record the initial offset between the touch point and the tile
+  const touch = e.touches[0];
+  touchClone.dataset.offsetX = touch.clientX - (rect.left + scrollX);
+  touchClone.dataset.offsetY = touch.clientY - (rect.top + scrollY);
+
+  // Keep original tile in place
+  touchTile.classList.add('dragging');
+}
+
+// Touch move logic
+function touchMove(e) {
+  e.preventDefault(); // Prevent scrolling
+
+  if (!touchClone) return;
+
+  const touch = e.touches[0];
+  const offsetX = parseFloat(touchClone.dataset.offsetX);
+  const offsetY = parseFloat(touchClone.dataset.offsetY);
+
+  // Update the clone's position to follow the touch point exactly
+  touchClone.style.left = `${touch.clientX - offsetX}px`;
+  touchClone.style.top = `${touch.clientY - offsetY}px`;
+}
+
+// Touch end logic
+function touchEnd(e) {
+  e.preventDefault();
+
+  if (!touchTile || !touchClone) return;
+
+  const touch = e.changedTouches[0];
+  const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+  if (target && target.classList.contains('dropzone')) {
+    const zoneId = target.id;
+
+    // Create a new tile in the drop zone
+    const newTile = createTile(touchTile.textContent, zoneId === 'spelling-dropzone' ? 'spelling-tile' : 'staging-tile');
+    newTile.style.backgroundColor = touchTile.style.backgroundColor; // Preserve original color
+    target.appendChild(newTile);
+
+    // Adjust background color when dropped in spelling area
+    if (zoneId === 'spelling-dropzone' && !spellingAreaColor) {
+      spellingAreaColor = newTile.style.backgroundColor;
+    }
+
+    if (spellingAreaColor) {
+      newTile.style.backgroundColor = spellingAreaColor;
+    }
+  }
+
+  // Clean up
+  document.body.removeChild(touchClone);
+  touchTile.classList.remove('dragging');
+  touchClone = null;
+  touchTile = null;
+  originalContainer = null;
+}
+
+// Dropzone functionality (click and drag)
+    document.querySelectorAll('.dropzone').forEach(zone => {
+  zone.addEventListener('dragover', e => e.preventDefault());
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    const content = e.dataTransfer.getData('tileContent');
+    const originClass = e.dataTransfer.getData('originClass');
+    const tileColor = e.dataTransfer.getData('tileColor'); // Get the original background color
+
+    let targetClass;
+    if (zone.id === 'staging-dropzone') targetClass = 'staging-tile';
+    else if (zone.id === 'spelling-dropzone') targetClass = 'spelling-tile';
+    else targetClass = originClass;
+
+    const tile = createTile(content, targetClass);
+    tile.style.backgroundColor = tileColor; // Apply the original background color
+    zone.appendChild(tile);
+  });
+});
+
+// Add dragover and drop events for the remove box
+const removeBox = document.getElementById('remove-box');
+
+removeBox.addEventListener('dragover', e => e.preventDefault());
+
+removeBox.addEventListener('drop', e => {
+    e.preventDefault();
+
+// Add touch events for the remove box
+removeBox.addEventListener('touchstart', handleTouchRemoveStart, { passive: true });
+removeBox.addEventListener('touchend', handleTouchRemoveEnd);
+
+    // Get the dragging tile
+    const content = e.dataTransfer.getData('tileContent');
+    const tiles = document.querySelectorAll('.tile');
+    
+    // Find the tile to delete
+    tiles.forEach(tile => {
+        if (tile.textContent === content && tile.classList.contains('dragging')) {
+            tile.parentNode.removeChild(tile); // Remove from the DOM
+        }
+    });
+});
+
+    // Reset functions
+    function resetStagingArea() {
+      document.getElementById('staging-dropzone').innerHTML = '';
+    }
+
+    function resetSpellingArea() {
+      document.getElementById('spelling-dropzone').innerHTML = '';
+    }
+
+    // Load initial phonograms
+    function loadInitialPhonograms() {
+      const bankDropzone = document.getElementById('bank-dropzone');
+      phonograms.forEach((phonogram, index) => {
+        const tile = createTile(phonogram, 'bank-tile');
+        tile.style.backgroundColor = colors[index % colors.length];
+        bankDropzone.appendChild(tile);
+      });
+    }
+
+    window.onload = loadInitialPhonograms;
+
+     // Add new functions here
+     function handleTouchRemoveStart(e) {
+         e.preventDefault();  // Prevent scrolling during touch.
+
+         // Identify the tile being touched
+         const touch = e.touches[0];
+         const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+         // Check if the target is a tile
+         if (target && target.classList.contains('tile')) {
+             touchTile = target;  // Set the tile as the one being touched.
+             touchTile.classList.add('dragging');  // Add the 'dragging' class.
+         }
+     }
+
+     function handleTouchRemoveEnd(e) {
+         e.preventDefault();  // Prevent default touch behavior.
+
+         if (!touchTile) return;  // If there's no tile, do nothing.
+
+         // Identify where the touch ended
+         const touch = e.changedTouches[0];
+         const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+         // If the tile was dropped inside the remove box, remove it
+         if (target && target.id === 'remove-box') {
+             touchTile.parentNode.removeChild(touchTile);  // Remove the tile from its parent.
+         }
+
+         // Clean up by removing the 'dragging' class
+         touchTile.classList.remove('dragging');
+         touchTile = null;  // Reset the dragged tile.
+     }
+// Predefined phonogram sets
+const phonogramSets = {
+  vowels: ['a', 'e', 'i', 'o', 'u'],
+  consonants: ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'],
+  lBlends: ['a', 'ay', 'b', 'c', 'ck', 'd', 'e', 'ee', 'ea', 'f', 'g', 'i', 'k', 'l', 'm', 'n', 'o', 'oa', 'oo', 'ou', 'ow', 'p', 'r', 's', 'sh', 't', 'u', 'y'],
+sBlends: ['a', 'ar', 'aw', 'b', 'c', 'ch', 'ck', 'd', 'e', 'ea', 'ee', 'f', 'g', 'i', 'ir', 'k', 'l', 'm', 'n', 'ing', 'o', 'oo', 'or', 'ow', 'p', 'ph', 'r', 's', 'sh', 't', 'th', 'u', 'w', 'y', 'z'],
+chTeam: ['ai', 'c', 'ch', 'ck', 'd', 'e', 'ea', 'ee', 'i', 'k', 'l', 'm', 'n', 'oa', 'p', 'r', 's', 't', 'u', 'ur'], 
+shTeam: ['a', 'b', 'e', 'ee', 'f', 'i', 'ir', 'l', 'o', 'or', 'ow', 'p', 'r', 's', 'sh', 't', 'u', 'w'],
+thTeam: ['a', 'b', 'c', 'e', 'ee', 'i', 'k', 'l', 'm', 'n', 'ing', 'o', 'oa', 'ou', 'r', 's', 't', 'th', 'u'],
+ckTeam: ['a', 'b', 'ck', 'd', 'e', 'i', 'l', 'n', 'o', 'p', 'qu', 's', 'u'],
+whTeam: ['a', 'ch', 'e', 'ee', 'i', 'l', 'n', 'r', 't', 'wh', 'y'],
+consonantTeams: ['a', 'au', 'b', 'ch', 'ck', 'dge', 'e', 'ee', 'f', 'g', 'gh', 'i', 'j', 'kn', 'l', 'm', 'n', 'ng', 'o', 'ou', 'ow', 'p', 'ph', 'r', 's', 't', 'u', 'w', 'wr'],
+vowelTeams: ['ai', 'au', 'aw', 'ay', 'ea', 'ee', 'ei', 'eigh', 'ew', 'ey', 'ie', 'igh', 'oa', 'oe', 'oi', 'oo', 'ou', 'ough', 'ow', 'oy', 'ui'],
+rBlends: ['a', 'ai', 'ay', 'aw', 'b', 'c', 'ck', 'd', 'e', 'ea', 'ee', 'f', 'g', 'i', 'ie', 'igh', 'ing', 'k', 'l', 'm', 'n', 'o', 'oo', 'ou', 'ow', 'p', 'r', 's', 'sh', 't', 'u', 'ui', 'v', 'y', 'z'],
+finalBlends: ['a', 'ai', 'b', 'c', 'ch', 'd', 'e', 'ea', 'ee', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'or', 'ou', 'p', 'r', 's', 'sh', 't', 'th', 'u', 'ui', 'w', 'x', 'y', 'z'],
+otherPhonograms: ['ed', 'ar', 'or']
+};
+
+// Custom sets storage
+let customSets = {};
+
+// Populate the staging area from a preset set
+function populateFromPreset() {
+  const dropdown = document.getElementById('preset-dropdown');
+  const selectedSet = dropdown.value;
+  const stagingDropzone = document.getElementById('staging-dropzone');
+
+  if (selectedSet && phonogramSets[selectedSet]) {
+    stagingDropzone.innerHTML = ''; // Clear current tiles
+    phonogramSets[selectedSet].forEach(phonogram => {
+      const tile = createTile(phonogram, 'staging-tile');
+      stagingDropzone.appendChild(tile);
+    });
+  }
+}
+
+// Add a custom set
+function addCustomSet() {
+  const input = document.getElementById('custom-set-input');
+  const customSetValue = input.value.trim();
+  const dropdown = document.getElementById('custom-dropdown');
+
+  if (customSetValue) {
+    const phonograms = customSetValue.split(',').map(p => p.trim());
+    const setName = `Custom Set ${Object.keys(customSets).length + 1}`;
+    customSets[setName] = phonograms;
+
+    // Add the new set to the dropdown
+    const option = document.createElement('option');
+    option.value = setName;
+    option.textContent = setName;
+    dropdown.appendChild(option);
+
+    input.value = ''; // Clear input
+    alert(`Custom set "${setName}" added!`);
+  } else {
+    alert('Please enter phonograms to create a set.');
+  }
+}
+
+// Populate the staging area from a custom set
+function populateFromCustomSet() {
+  const dropdown = document.getElementById('custom-dropdown');
+  const selectedSet = dropdown.value;
+  const stagingDropzone = document.getElementById('staging-dropzone');
+
+  if (selectedSet && customSets[selectedSet]) {
+    stagingDropzone.innerHTML = ''; // Clear current tiles
+    customSets[selectedSet].forEach(phonogram => {
+      const tile = createTile(phonogram, 'staging-tile');
+      stagingDropzone.appendChild(tile);
+    });
+  }
+}
+  </script>
+</body>
+</html>
+
