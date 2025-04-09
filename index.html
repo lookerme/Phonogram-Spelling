@@ -33,7 +33,7 @@
       justify-content: space-between;
       align-items: center;
       margin: 0 0 10px;
-      background-color: white;
+      background-color: #62b6cb;
       padding: 5px 10px;
       border-radius: 8px;
     }
@@ -83,15 +83,15 @@
     }
 
     #bank-dropzone {
-      background-color: #00aba0;
+      background-color: #721817;
     }
 
     #staging-dropzone {
-      background-color: #0067ab;
+      background-color: #e9724c;
     }
 
     #spelling-dropzone {
-      background-color: #ab008e;
+      background-color: #2b4162;
     }
 
     #remove-box {
@@ -155,24 +155,14 @@
     <span>Drag here<br>to delete</span>
   </div>
 <div class="container" id="dropdown-container">
-  <h2>Phonogram Sets</h2>
-  <select id="preset-dropdown" onchange="populateFromPreset()">
-    <option value="">Select a preset set...</option>
- <option value="lBlends">L Blends</option>
-  <option value="rBlends">R Blends</option>
-<option value="sBlends">S Blends</option>
-<option value="finalBlends">Final Blends</option>
-<option value="chTeam">CH Team</option>
-<option value="shTeam">SH Team</option>
-<option value="thTeam">TH Team</option>
-<option value="whTeam">WH Team</option>
-<option value="ckTeam">CK Team</option>
-<option value="consonantTeams">Consonant Teams</option>
-<option value="vowelTeams">Vowel Teams</option>
- <option value="vowels">Vowels</option>
-    <option value="consonants">Consonants</option>
+<h2>Phonogram Sets</h2>
+<select id="preset-dropdown" onchange="populateFromPreset()">
+<option value="">Select a preset set...</option>
+<option value="listOne">List One</option>
+<option value="listTwo">List Two</option>
+<option value="listThree">List Three</option>
 <option value="otherPhonograms">Other Phonograms</option>
-  </select>
+</select>
 
   <div>
     <h3>Create Custom Set</h3>
@@ -186,7 +176,7 @@
 
   <script>
     const phonograms = ['a', 'c', 'd', 'f', 'g', 'o', 's', 'qu', 'b', 'e', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'sh', 'ee', 'th', 'ow', 'ou', 'oo', 'ch', 'ar', 'ay', 'ai', 'oy', 'oi', 'er', 'ir', 'ur', 'wor', 'ear', 'ng', 'ea', 'aw', 'au', 'or', 'ck', 'wh', 'ed', 'ew', 'ui', 'oa', 'gu', 'ph', 'ough', 'oe', 'ey', 'igh', 'kn', 'gn', 'wr', 'ie', 'dge', 'ei', 'eigh', 'ti', 'si', 'ci'];
-    const colors = ['#bbff00', '#ff6a00', '#6a00ff', '#00ff88', '#ffb300', '#ff0040', '#82007c'];
+    const colors = ['#bbff00', '#ff6a00', '#6a00ff', '#00ff88', '#0037ff', '#ff0040', '#82007c'];
 
     function addPhonogram() {
       const input = document.getElementById('phonogram-input');
@@ -417,18 +407,9 @@ removeBox.addEventListener('touchend', handleTouchRemoveEnd);
 // Predefined phonogram sets
 const phonogramSets = {
   vowels: ['a', 'e', 'i', 'o', 'u'],
-  consonants: ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'],
-  lBlends: ['a', 'ay', 'b', 'c', 'ck', 'd', 'e', 'ee', 'ea', 'f', 'g', 'i', 'k', 'l', 'm', 'n', 'o', 'oa', 'oo', 'ou', 'ow', 'p', 'r', 's', 'sh', 't', 'u', 'y'],
-sBlends: ['a', 'ar', 'aw', 'b', 'c', 'ch', 'ck', 'd', 'e', 'ea', 'ee', 'f', 'g', 'i', 'ir', 'k', 'l', 'm', 'n', 'ing', 'o', 'oo', 'or', 'ow', 'p', 'ph', 'r', 's', 'sh', 't', 'th', 'u', 'w', 'y', 'z'],
-chTeam: ['ai', 'c', 'ch', 'ck', 'd', 'e', 'ea', 'ear', 'ee', 'i', 'k', 'l', 'm', 'n', 'oa', 'p', 'r', 's', 't', 'u', 'ur'], 
-shTeam: ['a', 'b', 'e', 'ea', 'ear', 'ee', 'f', 'i', 'ir', 'l', 'o', 'or', 'ow', 'p', 'r', 's', 'sh', 't', 'u', 'w'],
-thTeam: ['a', 'b', 'c', 'e', 'ea', 'ear', 'ee', 'i', 'k', 'l', 'm', 'n', 'ing', 'o', 'oa', 'ou', 'r', 's', 't', 'th', 'u'],
-ckTeam: ['a', 'b', 'ck', 'd', 'e', 'i', 'l', 'n', 'o', 'p', 'qu', 's', 'u'],
-whTeam: ['a', 'ch', 'e', 'ee', 'i', 'l', 'n', 'r', 't', 'wh', 'y'],
-consonantTeams: ['a', 'au', 'b', 'ch', 'ck', 'dge', 'e', 'ee', 'f', 'g', 'gh', 'i', 'j', 'kn', 'l', 'm', 'n', 'ng', 'o', 'ou', 'ow', 'p', 'ph', 'r', 's', 't', 'u', 'w', 'wr'],
-vowelTeams: ['ai', 'au', 'aw', 'ay', 'ea', 'ee', 'ei', 'eigh', 'ew', 'ey', 'ie', 'igh', 'oa', 'oe', 'oi', 'oo', 'ou', 'ough', 'ow', 'oy', 'ui'],
-rBlends: ['a', 'ai', 'ay', 'aw', 'b', 'c', 'ck', 'd', 'e', 'ea', 'ee', 'f', 'g', 'i', 'ie', 'igh', 'ing', 'k', 'l', 'm', 'n', 'o', 'oo', 'ou', 'ow', 'p', 'r', 's', 'sh', 't', 'u', 'ui', 'v', 'y', 'z'],
-finalBlends: ['a', 'ai', 'b', 'c', 'ch', 'd', 'e', 'ea', 'ee', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'or', 'ou', 'p', 'r', 's', 'sh', 't', 'th', 'u', 'ui', 'w', 'x', 'y', 'z'],
+listOne: ['a', 'b', 'c', 'd', 'e', 'er', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'qu', 'r', 's', 't', 'th', 'u', 'v', 'w', 'x', 'y'],
+listTwo: ['a', 'ai', 'ar', 'ay', 'b', 'c', 'ch', 'd', 'e', 'ea', 'ear', 'ee', 'er', 'f', 'h', 'i', 'ir', 'k', 'l', 'm', 'n', 'ng', 'o', 'oi', 'oo', 'or', 'ou', 'ow', 'oy', 'p', 'r', 's', 'sh', 't', 'th', 'u', 'ur', 'v', 'w', 'y', 'z'],
+listThree: ['a', 'au', 'aw', 'b', 'c', 'ci', 'ck', 'd', 'dge', 'e', 'ed', 'ei', 'eigh', 'ew', 'ey', 'f', 'g', 'gn', 'gu', 'i', 'ie', 'igh', 'k', 'kn', 'l', 'm', 'n', 'o', 'oa', 'oe', 'or', 'ough', 'p', 'ph', 'r', 's', 'si', 't', 'th', 'ti', 'ui', 'v', 'w', 'wh', 'wr'],
 otherPhonograms: ['ed', 'ar', 'or']
 };
 
